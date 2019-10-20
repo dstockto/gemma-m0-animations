@@ -674,64 +674,60 @@ alien = [
    0x42],
 ]
 
+def id(x, y, px):
+  return x, y, px
 
-def standard(x, y, pixel):
-  return x, y, pixel
+def inv(x, y, px):
+  return x, y, not px
 
+def rotLt(x, y, px):
+  return 7 - y, x, px
 
-def invertPixel(x, y, pixel):
-  return x, y, not pixel
+def rotRt(x, y, px):
+  return y, 7 - x, px
 
+def rot180(x, y, px):
+  return 7 - x, 7 - y, px
 
-def rotateLeft(x, y, pixel):
-  return 7 - y, x, pixel
-
-
-def rotateRight(x, y, pixel):
-  return y, 7 - x, pixel
-
-def rotate180(x, y, pixel):
-  return 7 - x, 7 - y, pixel
-
-def play(frames=f, delay=.05, tf=standard):
-  for frame in frames:
-    for y, row in enumerate(frame):
+def play(frames=f, delay=.05, tf=id):
+  for f in frames:
+    for y, row in enumerate(f):
       for x, mask in enumerate(xMask):
         pixel = row & mask == mask
-        xPix, yPix, pixel = tf(x, y, pixel)
+        xPx, yPx, pixel = tf(x, y, pixel)
         if pixel:
-          matrix.pixel(xPix, yPix, 1)
+          matrix.pixel(xPx, yPx, 1)
         else:
-          matrix.pixel(xPix, yPix, 0)
+          matrix.pixel(xPx, yPx, 0)
   matrix.show()
   time.sleep(delay)
 
-stopped = False
-sleepCount = 0
-touchCount = 0
+go = True
+sleeps = 0
+touches = 0
 while True:
-  if not stopped:
+  if go:
     play()
     play(f[::-1])
-    play(tf=invertPixel)
-    play(f[0:5], .1, tf=rotateRight)
-    play(f[0:5], .1, tf=rotate180)
-    play(f[0:5], .1, tf=rotateLeft)
+    play(tf=inv)
+    play(f[0:5], .1, tf=rotRt)
+    play(f[0:5], .1, tf=rot180)
+    play(f[0:5], .1, tf=rotLt)
     play()
-    stopped = True
+    go = False
   else:
     matrix.fill(0)
     matrix.show()
     time.sleep(2)
-    sleepCount = sleepCount + 1
+    sleeps = sleeps + 1
     if touch.value:
-      stopped = False
-      if touchCount == 0:
+      go = False
+      if touches == 0:
         play(smile, delay=2)
       else:
         play(alien, delay=1)
-      touchCount = 1 - touchCount
-      sleepCount = 0
-    if sleepCount >= 15:
-      stopped = False
-      sleepCount = 0
+      touches = 1 - touches
+      sleeps = 0
+    if sleeps >= 15:
+      go = True
+      sleeps = 0
