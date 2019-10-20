@@ -693,12 +693,12 @@ def rotateRight(x, y, pixel):
 def rotate180(x, y, pixel):
   return 7 - x, 7 - y, pixel
 
-def play(frames=f, delay=.05, rotate=standard):
+def play(frames=f, delay=.05, tf=standard):
   for frame in frames:
     for y, row in enumerate(frame):
       for x, mask in enumerate(xMask):
         pixel = row & mask == mask
-        xPix, yPix, pixel = rotate(x, y, pixel)
+        xPix, yPix, pixel = tf(x, y, pixel)
         if pixel:
           matrix.pixel(xPix, yPix, 1)
         else:
@@ -713,10 +713,10 @@ while True:
   if not stopped:
     play()
     play(f[::-1])
-    play(rotate=invertPixel)
-    play(f[0:5], .1, rotate=rotateRight)
-    play(f[0:5], .1, rotate=rotate180)
-    play(f[0:5], .1, rotate=rotateLeft)
+    play(tf=invertPixel)
+    play(f[0:5], .1, tf=rotateRight)
+    play(f[0:5], .1, tf=rotate180)
+    play(f[0:5], .1, tf=rotateLeft)
     play()
     stopped = True
   else:
